@@ -1,6 +1,6 @@
-This tablesorterFilter plugin extends the <a href="http://tablesorter.com/docs/">jQuery TableSorter plugin</a>, written by Christian Bach, and provides the ability to search the table and filter the results.
+This tablesorterFilter plugin extends the jQuery TableSorter plugin (http://tablesorter.com), written by Christian Bach, and provides the ability to search the table and filter the results.
 
-<b>Usage/Example</b>
+USAGE / EXAMPLE
 
 <script type="text/javascript">
     jQuery(document).ready(function() {
@@ -42,7 +42,7 @@ Search: <input name="filter" id="filter-box" value="" maxlength="30" size="30" t
 </table> 
 
 
-<b>Configuration</b>
+CONFIGURATION
 
 tablesorterFilter takes four parameters:
 
@@ -51,10 +51,13 @@ tablesorterFilter takes four parameters:
     * filterColumns - An array of columns, starting at 0, which will be searched.
     * filterCaseSensitive - (optional) Boolean stating whether the search string is case sensitive.  The default is false.
 
-<b>Requirements</b>
+
+REQUIREMENTS
 
 jQuery version 1.2.1 or higher and a slightly modified jquery.tablesorter.js version 2.0.3.  Both are included in this repo.
 
-<b>License</b>
 
-Dual licensed under the MIT and GPL licenses
+LICENSE
+
+tablesorter_filter is (c) 2008 Justin Britten (justinbritten at gmail dot com) and is dual licensed under the MIT and GPL licenses.
+
