@@ -68,7 +68,8 @@
 				// Rows which match the string will be pushed into the resultRows array.
 				var allRows = table.config.cache.row;
 				
-				for (var i=0; i < allRows.length; i++) {
+				var allRowsCount = allRows.length;
+				for (var i=0; i < allRowsCount; i++) {
 					allRows[i].each ( search_text );
 				}
 
@@ -76,7 +77,8 @@
 				$.tablesorter.clearTableBody(table);
 				
 				// Push all rows which matched the search string onto the table for display.
-				for (var i=0; i < resultRows.length; i++) {
+				var resultRowsCount = resultRows.length;
+				for (var i=0; i < resultRowsCount; i++) {
 					$(table.tBodies[0]).append(resultRows[i]);
 				}
 				
