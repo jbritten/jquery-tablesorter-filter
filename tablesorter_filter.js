@@ -128,7 +128,8 @@
 				filterContainer: '#filter-box',
 				filterClearContainer: '#filter-clear-button',
 				filterColumns: null,
-				filterCaseSensitive: false
+				filterCaseSensitive: false,
+				filterWaitTime: 500
 			};
 			
 			
@@ -160,7 +161,7 @@
 					var timer;
 					
 					$(config.filterContainer).keyup(function() {
-						var timerWait = 500;
+						var timerWait = config.filterWaitTime || 500;
 						var overrideBool = false;
 						var inputBox = this;
 
