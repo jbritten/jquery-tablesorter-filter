@@ -115,7 +115,7 @@
 			
 			/* debuging utils */
 			function benchmark(s,d) {
-				log(s + "," + (new Date().getTime() - d.getTime()) + "ms");
+				log(s + ": " + (new Date().getTime() - d.getTime()) + "ms");
 			}
 			
 			this.benchmark = benchmark;
@@ -213,7 +213,7 @@
 						cols = null;
 					};
 				
-				if(table.config.debug) { benchmark("Building cache for " + totalRows + " rows:", cacheTime); }
+				if(table.config.debug) { benchmark("Built cache for " + totalRows + " rows", cacheTime); }
 				
 				return cache;
 			};
@@ -278,7 +278,7 @@
 				
 				rows = null;
 				
-				if(table.config.debug) { benchmark("Rebuilt table:", appendTime); }
+				if(table.config.debug) { benchmark("Rebuilt table", appendTime); }
 								
 				//apply table widgets
 				applyWidget(table);
@@ -316,7 +316,7 @@
 					table.config.headerList[index]= this;
 				});
 				
-				if(table.config.debug) { benchmark("Built headers:", time); log($tableHeaders); }
+				if(table.config.debug) { benchmark("Built headers", time); log($tableHeaders); }
 				
 				return $tableHeaders;
 				
@@ -461,7 +461,7 @@
 				
 				cache.normalized.sort(sortWrapper);
 				
-				if(table.config.debug) { benchmark("Sorting on " + sortList.toString() + " and dir " + order+ " time:", sortTime); }
+				if(table.config.debug) { benchmark("Sorted " + sortList.toString(), sortTime); }
 				
 				return cache;
 			};
@@ -852,7 +852,7 @@
 	        .removeClass(table.config.widgetZebra.css[1]).addClass(table.config.widgetZebra.css[0])
 	        .end().filter(':odd')
 	        .removeClass(table.config.widgetZebra.css[0]).addClass(table.config.widgetZebra.css[1]);
-			if(table.config.debug) { $.tablesorter.benchmark("Applying Zebra widget", time); }
+			if(table.config.debug) { $.tablesorter.benchmark("Applied Zebra widget", time); }
 		}
 	});	
 })(jQuery);
