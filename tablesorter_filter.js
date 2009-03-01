@@ -89,6 +89,9 @@
 
 				if(table.config.debug) { $.tablesorter.benchmark("Apply filter:", cacheTime); }
 
+				// Inform subscribers that filtering finished
+				$(table).trigger("filterEnd");
+
 				return table;
 			};
 			
@@ -110,6 +113,8 @@
 
 				if(table.config.debug) { $.tablesorter.benchmark("Clear filter:", cacheTime); }
 				
+				$(table).trigger("filterCleared");
+
 				return table;
 			};
 				
@@ -178,6 +183,9 @@
 						$(config.filterContainer).val("").focus();
 					});
 					
+					$(table).bind("doFilter",function() {
+						doFilter(table);
+					});
 					$(table).bind("clearFilter",function() {
 						clearFilter(table);
 					});
