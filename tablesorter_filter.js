@@ -187,7 +187,11 @@
 					if(config.filter[i].filterClearContainer) {
 						$(config.filterClearContainer).click(function() {
 							clearFilter(table);
-							$(config.filterContainer).val("").focus();
+							var container = $(config.filterContainer);
+							container.val("");
+							// Support entering the same filter text after clearing
+							container[0].lastValue = "";
+							container.focus();
 						});
 					}
 					
