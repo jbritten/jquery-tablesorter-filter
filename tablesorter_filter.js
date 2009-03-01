@@ -183,10 +183,13 @@
 						return false;
 					});
 					
-					$(config.filterClearContainer).click(function() {
-						clearFilter(table);
-						$(config.filterContainer).val("").focus();
-					});
+					// Avoid binding click event to whole document if no clearContainer has been defined
+					if(config.filter[i].filterClearContainer) {
+						$(config.filterClearContainer).click(function() {
+							clearFilter(table);
+							$(config.filterContainer).val("").focus();
+						});
+					}
 					
 					$(table).bind("doFilter",function() {
 						doFilter(table);
