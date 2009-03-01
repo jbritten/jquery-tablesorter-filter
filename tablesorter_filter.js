@@ -16,6 +16,7 @@
 	$.extend({
 		tablesorterFilter: new function() {
 
+			// Default filterFunction implementation (element text, search words, case-sensitive flag)
 			function has_words(str, words, caseSensitive) {
 				var text = caseSensitive ? str : str.toLowerCase();
 
@@ -28,47 +29,52 @@
 				return true;
 			}
 
-		
-			function doFilter(table, phrase) {
+
+			function doFilter(table) {
 				if(table.config.debug) { var cacheTime = new Date(); }
-				
-				// Trim and unify whitespace before splitting
-				phrase = jQuery.trim(phrase).replace(/\s+/g, ' ');
-				var caseSensitive = table.config.filterCaseSensitive;
-				var words = caseSensitive ? phrase.split(" ") : phrase.toLowerCase().split(" ");
-				var columns = table.config.filterColumns;
-				var resultRows = [];
-				
-				var success = function(elem) { 
-					elem.show();
-					resultRows.push(elem);
-				}
-				var failure = function(elem) {;}
 
-
-				if ( columns ) {
-					var findStr = "";
-					for (var i=0; i < columns.length; i++) {
-						findStr += "td:eq(" + columns[i] + "),";
+				// Build multiple filters from input boxes
+				// TODO: enable incremental filtering by caching result and applying only single filter action
+				var filters = [];
+				for(var i=0; i < table.config.filter.length; i++) {
+					var container = $(table.config.filter[i].filterContainer);
+					// Trim and unify whitespace before splitting
+					var phrase = jQuery.trim(container.val()).replace(/\s+/g, ' ');
+					if(phrase.length != 0) {
+						var caseSensitive = table.config.filter[i].filterCaseSensitive;
+						filters.push({
+							caseSensitive: caseSensitive,
+							words: caseSensitive ? phrase.split(" ") : phrase.toLowerCase().split(" "),
+							findStr: table.config.filter[i].filterColumns ? "td:eq(" + table.config.filter[i].filterColumns.join("),td:eq(") + ")" : "",
+							filterFunction: table.config.filter[i].filterFunction
+						});
 					}
+				}
+				var filterCount = filters.length;
 
+				// Filter cleared?
+				if(filterCount == 0) {
 					var search_text = function() {
 						var elem = jQuery(this);
-
-						has_words( elem.find(findStr).text(), words, caseSensitive ) ? success(elem) : failure(elem);
+						resultRows[resultRows.length] = elem;
 					}
 				} else {
 					var search_text = function() {
 						var elem = jQuery(this);
-
-						has_words( elem.text(), words, caseSensitive ) ? success(elem) : failure(elem);
+						for(var i=0; i < filterCount; i++) {
+							if(! filters[i].filterFunction( (filters[i].findStr ? elem.find(filters[i].findStr) : elem).text(), filters[i].words, filters[i].caseSensitive)) {
+								return true; // Skip elem and continue to next element
+							}
+						}
+						resultRows[resultRows.length] = elem;
 					}
 				}
-				
+
 				// Walk through all of the table's rows and search.
 				// Rows which match the string will be pushed into the resultRows array.
 				var allRows = table.config.cache.row;
-				
+				var resultRows = [];
+
 				var allRowsCount = allRows.length;
 				for (var i=0; i < allRowsCount; i++) {
 					allRows[i].each ( search_text );
@@ -76,13 +82,13 @@
 
 				// Clear the table
 				$.tablesorter.clearTableBody(table);
-				
+
 				// Push all rows which matched the search string onto the table for display.
 				var resultRowsCount = resultRows.length;
 				for (var i=0; i < resultRowsCount; i++) {
 					$(table.tBodies[0]).append(resultRows[i]);
 				}
-				
+
 				// Update the table by executing some of tablesorter's triggers
 				// This will apply any widgets or pagination, if used.
 				$(table).trigger("update");
@@ -99,14 +105,18 @@
 
 				return table;
 			};
-			
+
 			function clearFilter(table) {
 				if(table.config.debug) { var cacheTime = new Date(); }
 
+				// Reset all filter values
+				for(var i=0; i < table.config.filter.length; i++)
+					$(table.config.filter[i].filterContainer).val('').get(0).lastValue = '';
+
 				var allRows = table.config.cache.row;
-				
+
 				$.tablesorter.clearTableBody(table);
-				
+
 				for (var i=0; i < allRows.length; i++) {
 					$(table.tBodies[0]).append(allRows[i]);
 				}
@@ -117,28 +127,31 @@
 				$(table).trigger("sorton", [table.config.sortList]);
 
 				if(table.config.debug) { $.tablesorter.benchmark("Clear filter:", cacheTime); }
-				
+
 				$(table).trigger("filterCleared");
 
 				return table;
 			};
-				
-
 
 			this.defaults = {
 				filterContainer: '#filter-box',
 				filterClearContainer: '#filter-clear-button',
 				filterColumns: null,
 				filterCaseSensitive: false,
-				filterWaitTime: 500
+				filterWaitTime: 500,
+				filterFunction: has_words
 			};
-			
-			
-			this.construct = function(settings) {
 
-				return this.each(function() {	
 
-					config = $.extend(this.config, $.tablesorterFilter.defaults, settings);
+			this.construct = function() {
+				var settings = arguments; // Allow multiple config objects in constructor call
+
+				return this.each(function() {
+					this.config.filter = new Array(settings.length);
+					config.filter = new Array(settings.length);
+
+					for (var i = 0; i < settings.length; i++)
+						config.filter[i] = $.extend(this.config.filter[i], $.tablesorterFilter.defaults, settings[i]);
 
 					var table = this;
 
@@ -149,54 +162,67 @@
 					// Do not perform the filter is the query has not changed.
 					//
 					// Immediately perform the filter if the ENTER key is pressed.
-					
+
 					function checkInputBox(inputBox, override) {
 						var value = inputBox.value;
 
 						if ((value != inputBox.lastValue) || (override)) {
 							inputBox.lastValue = value;
-							doFilter( table, value );
+							doFilter( table );
 						}
 					};
 
-					var timer;
-					
-					$(config.filterContainer).keyup(function() {
-						var timerWait = config.filterWaitTime || 500;
-						var overrideBool = false;
-						var inputBox = this;
+					var timer = new Array(settings.length);
 
-						// Was ENTER pushed?
-						if (inputBox.keyCode == 13) {
-							timerWait = 1;
-							overrideBool = true;
-						}
+					for (var i = 0; i < settings.length; i++) {
+						var container = $(config.filter[i].filterContainer);
+						// TODO: throw error for non-existing filter container?
+						if(container.length)
+							container[0].filterIndex = i;
+						container.keyup(function(e, phrase) {
+							var index = this.filterIndex;
+							if(undefined !== phrase)
+								$(this).val(phrase);
+							var inputBox = this;
 
-						var timerCallback = function()
-						{
-							checkInputBox(inputBox, overrideBool)
-						}
+							// Was ENTER pushed?
+							if (inputBox.keyCode == 13 || undefined !== phrase) {
+								var timerWait = 1;
+								var overrideBool = true;
+							} else {
+								var timerWait = config.filter[index].filterWaitTime || 500;
+								var overrideBool = false;
+							}
 
-						// Reset the timer			
-						clearTimeout(timer);
-						timer = setTimeout(timerCallback, timerWait);				
+							var timerCallback = function() {
+								checkInputBox(inputBox, overrideBool);
+							}
 
-						return false;
-					});
-					
-					// Avoid binding click event to whole document if no clearContainer has been defined
-					if(config.filter[i].filterClearContainer) {
-						$(config.filterClearContainer).click(function() {
-							clearFilter(table);
-							var container = $(config.filterContainer);
-							container.val("");
-							// Support entering the same filter text after clearing
-							container[0].lastValue = "";
-							if(container[0].type != 'hidden')
-								container.focus();
+							// Reset the timer
+							clearTimeout(timer[index]);
+							timer[index] = setTimeout(timerCallback, timerWait);
+
+							return false;
 						});
+
+						// Avoid binding click event to whole document if no clearContainer has been defined
+						if(config.filter[i].filterClearContainer) {
+							var container = $(config.filter[i].filterClearContainer);
+							container[0].filterIndex = i;
+							container.click(function() {
+								var index = this.filterIndex;
+								var container = $(config.filter[index].filterContainer);
+								container.val("");
+								// Support entering the same filter text after clearing
+								container[0].lastValue = "";
+								// TODO: Clear single filter only
+								doFilter(table);
+								if(container[0].type != 'hidden')
+									container.focus();
+							});
+						}
 					}
-					
+
 					$(table).bind("doFilter",function() {
 						doFilter(table);
 					});
@@ -208,10 +234,10 @@
 
 		}
 	});
-	
+
 	// extend plugin scope
 	$.fn.extend({
-        tablesorterFilter: $.tablesorterFilter.construct
+		tablesorterFilter: $.tablesorterFilter.construct
 	});
 
-})(jQuery);			
+})(jQuery);
