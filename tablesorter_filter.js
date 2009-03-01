@@ -81,7 +81,11 @@
 				// Update the table by executing some of tablesorter's triggers
 				// This will apply any widgets or pagination, if used.
 				$(table).trigger("update");
-				$(table).trigger("appendCache");
+				if (resultRows.length) {
+					$(table).trigger("appendCache");
+					// Apply current sorting after restoring rows
+					$(table).trigger("sorton", [table.config.sortList]);
+				}
 
 				if(table.config.debug) { $.tablesorter.benchmark("Apply filter:", cacheTime); }
 
@@ -101,6 +105,8 @@
 
 				$(table).trigger("update");
 				$(table).trigger("appendCache");
+				// Apply current sorting after restoring all rows
+				$(table).trigger("sorton", [table.config.sortList]);
 
 				if(table.config.debug) { $.tablesorter.benchmark("Clear filter:", cacheTime); }
 				
