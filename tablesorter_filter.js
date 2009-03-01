@@ -20,7 +20,9 @@
 				var text = caseSensitive ? str : str.toLowerCase();
 
 				for (var i=0; i < words.length; i++) {
-					if (text.indexOf(words[i]) === -1) return false;
+					if (words[i].charAt(0) == '-') {
+						if (text.indexOf(words[i].substr(1)) != -1) return false; // Negated word must not be in text
+					} else if (text.indexOf(words[i]) == -1) return false; // Normal word must be in text
 				}
 
 				return true;
