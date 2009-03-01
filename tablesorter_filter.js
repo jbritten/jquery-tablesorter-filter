@@ -32,7 +32,8 @@
 			function doFilter(table, phrase) {
 				if(table.config.debug) { var cacheTime = new Date(); }
 				
-				var phrase_length = phrase.length;
+				// Trim and unify whitespace before splitting
+				phrase = jQuery.trim(phrase).replace(/\s+/g, ' ');
 				var caseSensitive = table.config.filterCaseSensitive;
 				var words = caseSensitive ? phrase.split(" ") : phrase.toLowerCase().split(" ");
 				var columns = table.config.filterColumns;
