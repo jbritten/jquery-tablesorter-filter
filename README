@@ -6,10 +6,9 @@ USAGE / EXAMPLE
     jQuery(document).ready(function() {
         $("#myTable")
         .tablesorter({debug: false, widgets: ['zebra'], sortList: [[0,0]]})
-        .tablesorterFilter({filterContainer: $("#filter-box"),
-                            filterClearContainer: $("#filter-clear-button"),
-                            filterColumns: [0],
-                            filterCaseSensitive: false});
+        .tablesorterFilter({filterContainer: "#filter-box",
+                            filterClearContainer: "#filter-clear-button",
+                            filterColumns: [0]});
     });
 </script>
 
@@ -44,12 +43,18 @@ Search: <input name="filter" id="filter-box" value="" maxlength="30" size="30" t
 
 CONFIGURATION
 
-tablesorterFilter takes four parameters:
+tablesorterFilter takes up to six parameters:
 
-    * filterContainer - The DOM id of the input box where the user will type the search string.
-    * filterClearContainer - (optional) The DOM id of the button, image, or whatever which will clear the search string and reset the table to it’s original, unfiltered state.
-    * filterColumns - An array of columns, starting at 0, which will be searched.
-    * filterCaseSensitive - (optional) Boolean stating whether the search string is case sensitive.  The default is false.
+    * filterContainer - (optional) The DOM id of the input box where the user will type the search string. The default is "#filter-box".
+    * filterClearContainer - (optional) The DOM id of the button (or image, ...) which will clear the search string and reset the table to it's original, unfiltered state. The default is "#filter-clear-button".
+    * filterColumns - (optional) An array of columns, starting at 0, which will be searched. The default is null so all columns will be searched.
+    * filterCaseSensitive - (optional) Boolean stating whether the search string is case sensitive. The default is false.
+    * filterWaitTime - (optional) Time after last key press to start filtering. The default is 500 (milliseconds).
+    * filterFunction - (optional) Custom function to filter by column text. The default is the plugin function has_words.
+
+You may provide mutiple filters (i.e. .tablesorterFilter({filterColumns: [0, 1]}, {filterContainer: "#filter-box-date", filterColumns: [2], filterFunction: filterByDate}.
+Search words are separated by spaces, words with a leading dash will be excluded.
+Example: "include -exclude" will filter for all rows which do contain the (partitial) word "include" but at the same time do not contain the word "exclude".
 
 
 REQUIREMENTS
