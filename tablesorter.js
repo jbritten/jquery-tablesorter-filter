@@ -121,7 +121,7 @@
 			this.benchmark = benchmark;
 			
 			function log(s) {
-				if (typeof console != "undefined" && typeof console.debug != "undefined") {
+				if (console !== undefined && console.debug !== undefined) {
 					console.log(s);
 				} else {
 					alert(s);
