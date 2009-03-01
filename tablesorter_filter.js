@@ -191,7 +191,8 @@
 							container.val("");
 							// Support entering the same filter text after clearing
 							container[0].lastValue = "";
-							container.focus();
+							if(container[0].type != 'hidden')
+								container.focus();
 						});
 					}
 					
