@@ -541,7 +541,7 @@
 							// get current column sort order
 							this.order = this.count++ % 2;
 							
-							// user only whants to sort on one column
+							// user only wants to sort on one column
 							if(!e[config.sortMultiSortKey]) {
 								
 								// flush the sort list
