@@ -148,6 +148,7 @@
 
 				return this.each(function() {
 					this.config.filter = new Array(settings.length);
+					var config = this.config;
 					config.filter = new Array(settings.length);
 
 					for (var i = 0; i < settings.length; i++)
