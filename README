@@ -38,7 +38,7 @@ Search: <input name="filter" id="filter-box" value="" maxlength="30" size="30" t
     <td>http://www.jdoe.com</td>
 </tr>
 </tbody>
-</table> 
+</table>
 
 
 CONFIGURATION
@@ -52,9 +52,14 @@ tablesorterFilter takes up to six parameters:
     * filterWaitTime - (optional) Time after last key press to start filtering. The default is 500 (milliseconds).
     * filterFunction - (optional) Custom function to filter by column text. The default is the plugin function has_words.
 
-You may provide mutiple filters (i.e. .tablesorterFilter({filterColumns: [0, 1]}, {filterContainer: "#filter-box-date", filterColumns: [2], filterFunction: filterByDate}.
+You may provide multiple filters, i.e.: .tablesorterFilter( { filterColumns: [0, 1] },
+                                                            { filterContainer: "#filter-box-date", filterColumns: [2], filterFunction: filterByDate } )
+Please note that you always have to use only one .tablesorterFilter() call, in this example with 2 object parameters.
+
 Search words are separated by spaces, words with a leading dash will be excluded.
 Example: "include -exclude" will filter for all rows which do contain the (partitial) word "include" but at the same time do not contain the word "exclude".
+
+You may filter programmatically: $("#filter-box").trigger("keyup").
 
 
 REQUIREMENTS
