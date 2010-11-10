@@ -36,19 +36,61 @@
         // Build multiple filters from input boxes
         // TODO: enable incremental filtering by caching result and applying only single filter action
         var filters = [];
+
+	// tkappler: We implement dynamic selection of a filter column
+	// by setting filter.filterColumns based on the user's
+	// query. That means we have to restore the base configuration
+	// of filterColumns after processing the query.
+	var defaultFilterColumns = [];
+
         for(var i=0; i < table.config.filter.length; i++) {
-          var container = $(table.config.filter[i].filterContainer);
+	  // tkappler: I extracted this expression to avoid repetition.
+          var filter = table.config.filter[i];
+          var container = $(filter.filterContainer);
+
+	  // tkappler: Record the base setting of filtered columns to
+	  // be able to restore it later, see above.
+          defaultFilterColumns[i] = filter.filterColumns;
+
           // Trim and unify whitespace before splitting
           var phrase = jQuery.trim(container.val()).replace(/\s+/g, ' ');
           if(phrase.length != 0) {
-            var caseSensitive = table.config.filter[i].filterCaseSensitive;
+
+	    // tkappler: Check for a 'col:' prefix.
+	    var field_prefix = /^([a-z]+):(.+)/;
+	    var match = field_prefix.exec(phrase);
+	    if (match !== null) {
+		// tkappler: The user wants to filter based on a certain
+		// column. If the actual filter expression after the ':' is
+		// still empty, we ignore it. If not, we find the index of
+		// that column and set filterColumns accordingly. Finally, we
+		// remove the 'col:' prefix from the phrase for the actual
+		// filtering.
+		var field = match[1];
+		phrase = match[2];
+		if (phrase.length === 0)
+		    break;
+		for (var k=0; k < filter.columns.length; k++) {
+		    if (filter.columns[k].indexOf(field) === 0) {
+			filter.filterColumns = [k];
+			break;
+		    }
+		}
+		phrase = phrase.replace(field_prefix, '');
+	    }
+
+            var caseSensitive = filter.filterCaseSensitive;
             filters.push({
               caseSensitive: caseSensitive,
               words: caseSensitive ? phrase.split(" ") : phrase.toLowerCase().split(" "),
-              findStr: table.config.filter[i].filterColumns ? "td:eq(" + table.config.filter[i].filterColumns.join("),td:eq(") + ")" : "",
-              filterFunction: table.config.filter[i].filterFunction
+              findStr: filter.filterColumns ? "td:eq(" + filter.filterColumns.join("),td:eq(") + ")" : "",
+              filterFunction: filter.filterFunction
             });
           }
+
+	  // tkappler: Restore the base setting of filtered columns,
+	  // see above.
+          filter.filterColumns = defaultFilterColumns[i];
         }
         var filterCount = filters.length;
 
@@ -62,7 +104,10 @@
           var search_text = function() {
             var elem = jQuery(this);
             for(var i=0; i < filterCount; i++) {
-              if(! filters[i].filterFunction( (filters[i].findStr ? elem.find(filters[i].findStr) : elem).text(), filters[i].words, filters[i].caseSensitive)) {
+              if(! filters[i].filterFunction(
+		     (filters[i].findStr ? elem.find(filters[i].findStr) : elem).text(),
+		     filters[i].words,
+		     filters[i].caseSensitive) ) {
                 return true; // Skip elem and continue to next element
               }
             }
@@ -139,7 +184,10 @@
         filterColumns: null,
         filterCaseSensitive: false,
         filterWaitTime: 500,
-        filterFunction: has_words
+        filterFunction: has_words,
+	// tkappler: To resolve 'col:...' to the index of the column, we need
+	// a list of the column names the user might type.
+	columns: []
       };
 
 
