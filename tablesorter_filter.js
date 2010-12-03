@@ -60,23 +60,17 @@
 	    var field_prefix = /^([a-z]+):(.+)/;
 	    var match = field_prefix.exec(phrase);
 	    if (match !== null) {
-		// tkappler: The user wants to filter based on a certain
-		// column. If the actual filter expression after the ':' is
-		// still empty, we ignore it. If not, we find the index of
-		// that column and set filterColumns accordingly. Finally, we
-		// remove the 'col:' prefix from the phrase for the actual
-		// filtering.
+		// tkappler: The user wants to filter based on a
+		// certain column. Find the index of that column and
+		// set filterColumns accordingly.
 		var field = match[1];
 		phrase = match[2];
-		if (phrase.length === 0)
-		    break;
 		for (var k=0; k < filter.columns.length; k++) {
 		    if (filter.columns[k].indexOf(field) === 0) {
 			filter.filterColumns = [k];
 			break;
 		    }
 		}
-		phrase = phrase.replace(field_prefix, '');
 	    }
 
             var caseSensitive = filter.filterCaseSensitive;
