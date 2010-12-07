@@ -5,6 +5,10 @@
  * 1. Greg Weber's uiTableFilter project (http://gregweber.info/projects/uitablefilter)
  * 2. Denny Ferrassoli & Charles Christolini's TypeWatch project (www.dennydotnet.com)
  *
+ * Contributions have been made by:
+ * René Leonhardt (github.com/rleonhardt)
+ * Thomas Kappler (github.com/thomas11)
+ *
  * Dual licensed under the MIT and GPL licenses:
  * http://www.opensource.org/licenses/mit-license.php
  * http://www.gnu.org/licenses/gpl.html
@@ -37,41 +41,40 @@
         // TODO: enable incremental filtering by caching result and applying only single filter action
         var filters = [];
 
-	// tkappler: We implement dynamic selection of a filter column
-	// by setting filter.filterColumns based on the user's
-	// query. That means we have to restore the base configuration
-	// of filterColumns after processing the query.
-	var defaultFilterColumns = [];
+      	// Implement dynamic selection of a filter column
+      	// by setting filter.filterColumns based on the user's
+      	// query. That means we have to restore the base configuration
+      	// of filterColumns after processing the query.
+	      var defaultFilterColumns = [];
 
         for(var i=0; i < table.config.filter.length; i++) {
-	  // tkappler: I extracted this expression to avoid repetition.
           var filter = table.config.filter[i];
           var container = $(filter.filterContainer);
 
-	  // tkappler: Record the base setting of filtered columns to
-	  // be able to restore it later, see above.
+	        // Record the base setting of filtered columns to
+	        // be able to restore it later, see above.
           defaultFilterColumns[i] = filter.filterColumns;
 
           // Trim and unify whitespace before splitting
           var phrase = jQuery.trim(container.val()).replace(/\s+/g, ' ');
           if(phrase.length != 0) {
 
-	    // tkappler: Check for a 'col:' prefix.
-	    var field_prefix = /^([a-z]+):(.+)/;
-	    var match = field_prefix.exec(phrase);
-	    if (match !== null) {
-		// tkappler: The user wants to filter based on a
-		// certain column. Find the index of that column and
-		// set filterColumns accordingly.
-		var field = match[1];
-		phrase = match[2];
-		for (var k=0; k < filter.columns.length; k++) {
-		    if (filter.columns[k].indexOf(field) === 0) {
-			filter.filterColumns = [k];
-			break;
-		    }
-		}
-	    }
+            // Check for a 'col:' prefix.
+            var field_prefix = /^([a-z]+):(.+)/;
+            var match = field_prefix.exec(phrase);
+            if (match !== null) {
+              // The user wants to filter based on a
+              // certain column. Find the index of that column and
+              // set filterColumns accordingly.
+              var field = match[1];
+              phrase = match[2];
+              for (var k=0; k < filter.columns.length; k++) {
+                if (filter.columns[k].indexOf(field) === 0) {
+                  filter.filterColumns = [k];
+                  break;
+                }
+              }
+	          }
 
             var caseSensitive = filter.filterCaseSensitive;
             filters.push({
@@ -82,8 +85,7 @@
             });
           }
 
-	  // tkappler: Restore the base setting of filtered columns,
-	  // see above.
+	        // Restore the base setting of filtered columns
           filter.filterColumns = defaultFilterColumns[i];
         }
         var filterCount = filters.length;
@@ -179,9 +181,7 @@
         filterCaseSensitive: false,
         filterWaitTime: 500,
         filterFunction: has_words,
-	// tkappler: To resolve 'col:...' to the index of the column, we need
-	// a list of the column names the user might type.
-	columns: []
+	      columns: []
       };
 
 
