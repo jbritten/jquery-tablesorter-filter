@@ -60,7 +60,7 @@
           if(phrase.length != 0) {
 
             // Check for a 'col:' prefix.
-            var field_prefix = /^([a-z]+):(.+)/;
+            var field_prefix = /^([a-zA-Z]+):(.+)/;
             var match = field_prefix.exec(phrase);
             if (match !== null) {
               // The user wants to filter based on a
