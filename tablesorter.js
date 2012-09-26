@@ -110,7 +110,8 @@
 				headerList: [],
 				dateFormat: "us",
 				decimal: '.',
-				debug: false
+				debug: false,
+				customMap: []
 			};
 			
 			/* debuging utils */
@@ -127,7 +128,67 @@
 					alert(s);
 				}
 			}
-						
+			function findInMap(map, index, reverse) {
+				var output = [];
+				for(var i = 0; i < map.length; ++i) {
+					if(map[i][reverse ? 1 : 0] == index) {
+						var tmp =map[i][reverse ? 0 : 1];
+						if ($.isArray(tmp) ) {
+							for (kk=0; kk< tmp.length;++kk) {
+								output.push(tmp[kk]);
+							}
+						} else {
+							output.push(tmp);
+						}
+
+						break;
+					}
+				}
+				if (! output) {
+					output = index;
+				}
+				return output;
+			}
+			/* Detect the colspan */
+			function detectColspan(table) {
+				var ncolsdata = table.children[1].children[0].children.length;
+				var iscolumndone = [];
+				for (var k = 0; k < ncolsdata; k++) iscolumndone[k] = 0;
+				
+				var nrows = table.children[0].children.length;
+				var map = [];
+				var cosa;
+				
+				var jcolheadindex=0;
+				for (i=0; i<nrows;i++) {
+					var tr = table.children[0].children[i];
+					var ncolshead = tr.children.length;
+					jcoldata = 0;
+					for (j=0;j<ncolshead;j++) {
+						jcoldata = iscolumndone.indexOf(0,jcoldata);
+						var rowspan = parseInt(tr.children[j].getAttribute("rowspan"));
+						var colspan = parseInt(tr.children[j].getAttribute("colspan"));
+						if (! rowspan) { rowspan = 1;}
+						if (! colspan) { colspan = 1;}
+						if (colspan == 1) {
+							map.push([jcolheadindex,jcoldata]);
+							iscolumndone[jcoldata]=1;
+						} else {
+							var tmp = [];
+							for (k=0;k<colspan;k++) {
+								tmp.push(jcoldata+k);
+							}
+							map.push([jcolheadindex,tmp]);
+						}
+						jcoldata=jcoldata + colspan;
+						jcolheadindex=jcolheadindex+1;
+					}
+				}
+				return map;
+			}
+			
+			/* End of fix colspan issue */
+
 			/* parsers utils */
 			function buildParserCache(table,$headers) {
 				
@@ -402,7 +463,11 @@
 				
 				var l = list.length; 
 				for(var i=0; i < l; i++) {
-					h[list[i][0]].addClass(css[list[i][1]]);
+					var header = list[i];
+					var headerIndex = findInMap(table.config.customMap,header[0],true);
+					for (var j=0;j< headerIndex.length;j++) {
+						h[headerIndex[j]].addClass(css[header[1]]);
+					}
 				}
 			}
 			
@@ -505,6 +570,9 @@
 					// build headers
 					$headers = buildHeaders(this);
 					
+					
+					this.config.customMap = detectColspan(this);
+					
 					// try to auto detect column type, and store in tables config
 					this.config.parsers = buildParserCache(this,$headers);
 					
@@ -528,7 +596,6 @@
 						$this.trigger("sortStart");
 						
 						var totalRows = ($this[0].tBodies[0] && $this[0].tBodies[0].rows.length) || 0;
-						
 						if(!this.sortDisabled && totalRows > 0) {
 							
 							
@@ -555,10 +622,11 @@
 										}
 									}
 								}
+								var ia = findInMap(config.customMap, i, false);
+								for (var kk = 0; kk< ia.length; ++kk) {
+									config.sortList.push([ia[kk],this.order]);
+								}
 								
-								// add column to sort list
-								config.sortList.push([i,this.order]);
-							
 							// multi column sorting
 							} else {
 								// the user has clicked on an all ready sortet column.
@@ -575,7 +643,11 @@
 									}	
 								} else {
 									// add column to sort list array
-									config.sortList.push([i,this.order]);
+
+									var ia = findInMap(config.customMap, i, false);
+									for (var kk = 0; kk< ia.length; ++kk) {
+										config.sortList.push([ia[kk],this.order]);
+									}
 								}
 							};
 							setTimeout(function() {
