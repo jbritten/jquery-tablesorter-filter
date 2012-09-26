@@ -166,9 +166,7 @@
 					jcoldata = 0;
 					for (j=0;j<ncolshead;j++) {
 						jcoldata = iscolumndone.indexOf(0,jcoldata);
-						var rowspan = parseInt(tr.children[j].getAttribute("rowspan"));
 						var colspan = parseInt(tr.children[j].getAttribute("colspan"));
-						if (! rowspan) { rowspan = 1;}
 						if (! colspan) { colspan = 1;}
 						if (colspan == 1) {
 							map.push([jcolheadindex,jcoldata]);
