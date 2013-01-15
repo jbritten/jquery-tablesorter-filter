@@ -151,7 +151,7 @@
 			}
 			/* Detect the colspan */
 			function detectColspan(table) {
-				var ncolsdata = table.children[1].children[0].children.length;
+				var ncolsdata = table.tBodies[0].children[0].children.length;
 				var iscolumndone = [];
 				for (var k = 0; k < ncolsdata; k++) iscolumndone[k] = 0;
 				
