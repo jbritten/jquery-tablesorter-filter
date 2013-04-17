@@ -132,7 +132,7 @@
 				var output = [];
 				for(var i = 0; i < map.length; ++i) {
 					if(map[i][reverse ? 1 : 0] == index) {
-						var tmp =map[i][reverse ? 0 : 1];
+						var tmp =map[i][reverse ? 1 : 0];
 						if ($.isArray(tmp) ) {
 							for (kk=0; kk< tmp.length;++kk) {
 								output.push(tmp[kk]);
@@ -165,7 +165,7 @@
 					var ncolshead = tr.children.length;
 					jcoldata = 0;
 					for (j=0;j<ncolshead;j++) {
-						jcoldata = iscolumndone.indexOf(0,jcoldata);
+						jcoldata = $.inArray(jcoldata, iscolumndone);
 						var colspan = parseInt(tr.children[j].getAttribute("colspan"));
 						if (! colspan) { colspan = 1;}
 						if (colspan == 1) {
