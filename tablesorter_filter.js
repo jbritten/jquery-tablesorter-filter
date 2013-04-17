@@ -1,4 +1,6 @@
 /*
+ * Forked version (quartzmo 2012/11/12)
+ *
  * Copyright (c) 2008 Justin Britten justinbritten at gmail.com
  *
  * Some code was borrowed from:
@@ -34,7 +36,7 @@
       }
 
 
-      function doFilter(table) {
+      function doFilter(table, allRows) {
         if(table.config.debug) { var cacheTime = new Date(); }
 
         // Build multiple filters from input boxes
@@ -113,7 +115,6 @@
 
         // Walk through all of the table's rows and search.
         // Rows which match the string will be pushed into the resultRows array.
-        var allRows = table.config.cache.row;
         var resultRows = [];
 
         var allRowsCount = allRows.length;
@@ -147,14 +148,13 @@
         return table;
       };
 
-      function clearFilter(table) {
+      function clearFilter(table, allRows) {
         if(table.config.debug) { var cacheTime = new Date(); }
 
         // Reset all filter values
         for(var i=0; i < table.config.filter.length; i++)
           $(table.config.filter[i].filterContainer).val('').get(0).lastValue = '';
 
-        var allRows = table.config.cache.row;
 
         $.tablesorter.clearTableBody(table);
 
@@ -198,6 +198,9 @@
 
           var table = this;
 
+          var allRows = table.config.cache[0].row.slice();
+
+
           // Create a timer which gets reset upon every keyup event.
           //
           // Perform filter only when the timer's wait is reached (user finished typing or paused long enough to elapse the timer).
@@ -211,7 +214,7 @@
 
             if ((value != inputBox.lastValue) || (override)) {
               inputBox.lastValue = value;
-              doFilter( table );
+              doFilter( table, allRows );
             }
           };
 
@@ -260,7 +263,7 @@
                   // Support entering the same filter text after clearing
                   container[0].lastValue = "";
                   // TODO: Clear single filter only
-                  doFilter(table);
+                  doFilter(table, allRows);
                   if(container[0].type != 'hidden')
                     container.focus();
                 });
@@ -269,10 +272,10 @@
           }
 
           $(table).bind("doFilter",function() {
-            doFilter(table);
+            doFilter(table, allRows);
           });
           $(table).bind("clearFilter",function() {
-            clearFilter(table);
+            clearFilter(table, allRows);
           });
         });
       };
