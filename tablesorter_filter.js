@@ -113,7 +113,8 @@
 
         // Walk through all of the table's rows and search.
         // Rows which match the string will be pushed into the resultRows array.
-        var allRows = table.config.cache.row;
+        filter.originalRows || (filter.originalRows = table.config.cache[0].row);
+        var allRows = filter.filterFromOriginal ? filter.originalRows : table.config.cache[0].row;
         var resultRows = [];
 
         var allRowsCount = allRows.length;
@@ -181,7 +182,8 @@
         filterCaseSensitive: false,
         filterWaitTime: 500,
         filterFunction: has_words,
-	      columns: []
+        filterFromOriginal: false,
+        columns: []
       };
 
 

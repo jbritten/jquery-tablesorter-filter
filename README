@@ -51,6 +51,7 @@ tablesorterFilter takes up to six parameters:
     * filterCaseSensitive - (optional) Boolean stating whether the search string is case sensitive. The default is false.
     * filterWaitTime - (optional) Time after last key press to start filtering. The default is 500 (milliseconds).
     * filterFunction - (optional) Custom function to filter by column text. The default is the plugin function has_words.
+    * filterFromOriginal - (optional) Filter results from original list of rows. The default is false.
 
 You may provide multiple filters, i.e.: .tablesorterFilter( { filterColumns: [0, 1] },
                                                             { filterContainer: "#filter-box-date", filterColumns: [2], filterFunction: filterByDate } )
